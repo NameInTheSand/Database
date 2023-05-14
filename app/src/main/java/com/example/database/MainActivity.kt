@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.database.database.DBHelper
+import com.example.database.database.entities.Person
+import com.example.database.database.providers.PersonProvider
 import com.example.database.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -23,14 +25,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.apply {
             btnAdd.setOnClickListener {
-                contentValues.clear()
-                Log.d("TEST_TAG", "Insert data")
-
-                contentValues.put(NAME, etName.text.toString())
-                contentValues.put(SURNAME, etSurname.text.toString())
-
-                val rowId = db.insert("testTable", null, contentValues)
-                Log.d("TEST_TAG", "Row id = $rowId")
+                val insertCount = PersonProvider().insertEntity(
+                    Person(
+                        name = etName.text.toString(),
+                        surname = etSurname.text.toString()
+                    )
+                )
+                Log.d("TEST_TAG", "Insert id = $insertCount")
             }
             btnClear.setOnClickListener {
                 Log.d("TEST_TAG", "Clear data")
@@ -69,13 +70,45 @@ class MainActivity : AppCompatActivity() {
                 }
                 cursor.close()
             }
+
+            btnUpdate.setOnClickListener {
+                val id = etId.text.toString()
+
+                if (id.isEmpty()) return@setOnClickListener
+
+                contentValues.clear()
+
+                contentValues.put("name", etName.text.toString())
+                contentValues.put("surname", etSurname.text.toString())
+
+                val updatedCount = db.update(
+                    "testTable",
+                    contentValues,
+                    "id = ?",
+                    arrayOf(id)
+                )
+                Log.d("TEST_TAG", "Updated rows = $updatedCount")
+            }
+
+            btnDelete.setOnClickListener {
+                val id = etId.text.toString()
+
+                if (id.isEmpty()) return@setOnClickListener
+
+                val deletedCount = db.delete("testTable", "id = $id", null)
+                Log.d("TEST_TAG", "Deleted rows = $deletedCount")
+            }
         }
+    }
+
+    override fun onDestroy() {
+        dbHelper.close()
+        super.onDestroy()
     }
 
 
     companion object {
-        private const val NAME = "name"
-        private const val SURNAME = "surname"
+
     }
 
 }
