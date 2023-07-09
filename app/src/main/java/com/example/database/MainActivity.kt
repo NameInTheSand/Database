@@ -1,6 +1,5 @@
 package com.example.database
 
-import android.content.ContentValues
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -20,72 +19,35 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val contentValues = ContentValues()
-        val db = dbHelper.writableDatabase
 
         binding.apply {
             btnAdd.setOnClickListener {
                 val insertCount = PersonProvider().insertEntity(
                     Person(
-                        name = etName.text.toString(),
-                        surname = etSurname.text.toString()
+                        name = etName.text.toString(), surname = etSurname.text.toString()
                     )
                 )
                 Log.d("TEST_TAG", "Insert id = $insertCount")
             }
             btnClear.setOnClickListener {
-                Log.d("TEST_TAG", "Clear data")
-
-                val clearCount = db.delete("testTable", null, null)
+                val clearCount = PersonProvider().clearTable()
                 Log.d("TEST_TAG", "Clear count = $clearCount")
             }
 
             btnViewData.setOnClickListener {
-                Log.d("TEST_TAG", "Get all data")
-
-                val cursor = db.query(
-                    "testTable",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                )
-
-                if (cursor.moveToFirst()) {
-                    val idColumnIndex = cursor.getColumnIndex("id")
-                    val nameColumnIndex = cursor.getColumnIndex("name")
-                    val surnameColumnIndex = cursor.getColumnIndex("surname")
-
-                    do {
-                        Log.d(
-                            "TEST_TAG", "Id = ${cursor.getInt(idColumnIndex)}" +
-                                    "Name = ${cursor.getString(nameColumnIndex)}" +
-                                    "Surname = ${cursor.getString(surnameColumnIndex)}"
-                        )
-                    } while (cursor.moveToNext())
-                } else {
-                    Log.d("TEST_TAG", "TAble is empty")
-                }
-                cursor.close()
+                Log.d("TEST_TAG", PersonProvider().getListEntities().toString())
             }
 
             btnUpdate.setOnClickListener {
                 val id = etId.text.toString()
 
                 if (id.isEmpty()) return@setOnClickListener
-
-                contentValues.clear()
-
-                contentValues.put("name", etName.text.toString())
-                contentValues.put("surname", etSurname.text.toString())
-
-                val updatedCount = db.update(
-                    "testTable",
-                    contentValues,
-                    "id = ?",
-                    arrayOf(id)
+                val updatedCount = PersonProvider().updateEntity(
+                    Person(
+                        id = id.toInt(),
+                        name = etName.text.toString(),
+                        surname = etSurname.text.toString()
+                    )
                 )
                 Log.d("TEST_TAG", "Updated rows = $updatedCount")
             }
@@ -95,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
                 if (id.isEmpty()) return@setOnClickListener
 
-                val deletedCount = db.delete("testTable", "id = $id", null)
+                val deletedCount = PersonProvider().deleteEntity(id.toInt())
                 Log.d("TEST_TAG", "Deleted rows = $deletedCount")
             }
         }
@@ -104,11 +66,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         dbHelper.close()
         super.onDestroy()
-    }
-
-
-    companion object {
-
     }
 
 }

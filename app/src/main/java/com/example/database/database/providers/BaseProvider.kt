@@ -16,8 +16,10 @@ abstract class BaseProvider<T> {
 
     open fun getListEntities(): List<T> = emptyList()
 
-    open fun updateEntity(entity: T): Long = DEFAULT_VALUE
+    open fun updateEntity(entity: T): Int = DEFAULT_VALUE.toInt()
 
-    open fun deleteEntity(entity: T): Long = DEFAULT_VALUE
+    open fun deleteEntity(id: Int): Int = DEFAULT_VALUE.toInt()
+
+    open fun clearTable(): Int = DEFAULT_VALUE.toInt()
 
 }
