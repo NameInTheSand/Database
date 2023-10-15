@@ -2,10 +2,10 @@ package com.example.database
 
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.database.database.DBHelper
-import com.example.database.database.entities.Person
-import com.example.database.database.providers.PersonProvider
+import com.example.database.database.viewModels.MainViewModel
 import com.example.database.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +15,8 @@ class MainActivity : AppCompatActivity() {
         DBHelper(this)
     }
 
+    private val viewModel by viewModels<MainViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -22,44 +24,43 @@ class MainActivity : AppCompatActivity() {
 
         binding.apply {
             btnAdd.setOnClickListener {
-                val insertCount = PersonProvider().insertEntity(
-                    Person(
-                        name = etName.text.toString(), surname = etSurname.text.toString()
-                    )
+                viewModel.insertEntity(
+                    name = etName.text.toString(),
+                    surname = etSurname.text.toString()
                 )
-                Log.d("TEST_TAG", "Insert id = $insertCount")
             }
             btnClear.setOnClickListener {
-                val clearCount = PersonProvider().clearTable()
-                Log.d("TEST_TAG", "Clear count = $clearCount")
+                viewModel.clearPersonsTable()
             }
 
             btnViewData.setOnClickListener {
-                Log.d("TEST_TAG", PersonProvider().getListEntities().toString())
+                viewModel.getListEntities()
             }
 
             btnUpdate.setOnClickListener {
                 val id = etId.text.toString()
 
                 if (id.isEmpty()) return@setOnClickListener
-                val updatedCount = PersonProvider().updateEntity(
-                    Person(
-                        id = id.toInt(),
-                        name = etName.text.toString(),
-                        surname = etSurname.text.toString()
-                    )
+                viewModel.updateEntity(
+                    id = id.toInt(),
+                    name = etName.text.toString(),
+                    surname = etSurname.text.toString()
                 )
-                Log.d("TEST_TAG", "Updated rows = $updatedCount")
             }
 
             btnDelete.setOnClickListener {
                 val id = etId.text.toString()
 
                 if (id.isEmpty()) return@setOnClickListener
-
-                val deletedCount = PersonProvider().deleteEntity(id.toInt())
-                Log.d("TEST_TAG", "Deleted rows = $deletedCount")
+                viewModel.deleteEntity(id.toInt())
             }
+        }
+        initObservers()
+    }
+
+    private fun initObservers() {
+        viewModel.allEntitiesLiveData.observe(this) {
+            Log.d("TEST_TAG", it.toString())
         }
     }
 

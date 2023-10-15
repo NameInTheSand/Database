@@ -12,14 +12,14 @@ abstract class BaseProvider<T> {
     protected val database = dbHelper.writableDatabase
     protected val contentValues = ContentValues()
 
-    open fun insertEntity(entity: T): Long = DEFAULT_VALUE
+    open suspend fun insertEntity(entity: T): Long = DEFAULT_VALUE
 
-    open fun getListEntities(): List<T> = emptyList()
+    open suspend fun getListEntities(): List<T> = emptyList()
 
-    open fun updateEntity(entity: T): Int = DEFAULT_VALUE.toInt()
+    open suspend fun updateEntity(entity: T): Int = DEFAULT_VALUE.toInt()
 
-    open fun deleteEntity(id: Int): Int = DEFAULT_VALUE.toInt()
+    open suspend fun deleteEntity(id: Int): Int = DEFAULT_VALUE.toInt()
 
-    open fun clearTable(): Int = DEFAULT_VALUE.toInt()
+    open suspend fun clearTable(): Int = DEFAULT_VALUE.toInt()
 
 }
